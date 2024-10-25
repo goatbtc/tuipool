@@ -2,22 +2,23 @@ mod cli;
 mod ui;
 mod data;
 
-use std::{error::Error, thread::sleep, time::Duration};
+use std::error::Error;
 use cursive::{Cursive, CursiveExt};
 use data::data::BlockStorage;
-use ui::{blocks,exit,fees};
+use ui::{blocks,exit,fees,menubar::{self, setup_menubar}};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
 
+    // our TUI
     let mut siv = Cursive::default();
 
+    // menubar 
+    setup_menubar(&mut siv);
+    siv.set_autohide_menu(false);
+
+    // blocks view
     let mut block_storage = BlockStorage::new();
-
-    blocks::start_block_refresh(&mut siv, &mut block_storage);
-
-    sleep(Duration::from_secs(2));
-
     blocks::start_block_refresh(&mut siv, &mut block_storage);
 
     // "q" to quit

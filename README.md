@@ -8,8 +8,24 @@ Describe the solution / idea you have in mind
 The solution is to build a command-line interface 
 (CLI) tool in Rust that monitors the Bitcoin mempool in real-time, providing detailed insights into unconfirmed transactions. This tool will allow users to easily track transaction status, prioritize transactions based on fee rates, and receive real-time statistics and alerts.
 
-Key Features:
+## Key features
+
 Real-time Monitoring: Continuously track Bitcoin transactions as they enter and leave the mempool. Display essential details like transaction ID, size, fee rate (sat/vByte), and time spent in the mempool.
+We're implementing some AI features too.
+
+- [x] Make you happy
+- Blocks
+  - [ ] GET blocks info
+- Fees
+  - [ ] GET 
+  - [ ] AI
+- Transactions
+  - [ ] GET 
+  - [ ] AI
+- Mining
+  - [ ] GET 
+- Difficulty
+  - [ ] GET 
 
 Filtering and Search: Enable users to filter transactions based on parameters such as fee rate, transaction size, or value, making it easier to find relevant data.
 
@@ -20,3 +36,11 @@ Alerts and Notifications: Set custom alerts to notify users when specific condit
 Interactive TUI: Use a terminal user interface (TUI) for a user-friendly experience, displaying data in organized panels with real-time updates.
 
 This tool helps Bitcoin users, developers, and miners optimize transaction handling and gain valuable insights into network congestion and fee dynamics.
+
+## Call to contributors
+
+Passionate about open-source and Bitcoin? Join us in building a secure, community-driven project licensed under MIT. We welcome contributions from developers, testers, and enthusiasts to make this project a valuable resource for the Bitcoin community. Check out our contribution guide [here](CONTRIBUTING.md) to get started!
+
+## License
+
+Licensed under MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
