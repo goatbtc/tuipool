@@ -1,22 +1,24 @@
 mod cli;
 mod ui;
+mod data;
 
-use std::error::Error;
+use std::{error::Error, thread::sleep, time::Duration};
 use cursive::{Cursive, CursiveExt};
-use ui::exit;
+use data::data::BlockStorage;
+use ui::{blocks,exit,fees};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
 
-let mut siv = Cursive::default();
+    let mut siv = Cursive::default();
 
-    ui::blocks::blocks_view(&mut siv);
+    let mut block_storage = BlockStorage::new();
 
-    // "b" key to blocks
-    siv.add_global_callback('b', |s| {
-        s.pop_layer(); 
-        ui::blocks::blocks_view(s);
-    });
+    blocks::start_block_refresh(&mut siv, &mut block_storage);
+
+    sleep(Duration::from_secs(2));
+
+    blocks::start_block_refresh(&mut siv, &mut block_storage);
 
     // "q" to quit
     siv.add_global_callback('q', |s| exit::show_exit_dialog(s));

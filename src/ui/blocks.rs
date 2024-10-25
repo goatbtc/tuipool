@@ -1,9 +1,51 @@
-use cursive::views::{Dialog, TextView};
+use cursive::views::{Dialog, LinearLayout, Panel, TextView};
 use cursive::Cursive;
+use crate::data::data::{BlockData, BlockStorage};
+use rand::Rng;
 
-pub fn blocks_view(siv: &mut Cursive) {
-    let mempool_view = Dialog::around(TextView::new("Mempool Transactions"))
-        .title("Blocks mempool view");
+pub fn create_block_view(block: BlockData) -> Panel<TextView> {
+    let block_info = format!(
+        "Height: {}\n~{} sat/vB\n{} transações\n{} BTC\n{}",
+        block.height, block.sat_per_vbyte, block.transactions, block.btc_amount, block.time
+    );
 
-    siv.add_layer(mempool_view);
+    Panel::new(TextView::new(block_info)).title(block.pool)
 }
+
+fn render_blocks(siv: &mut Cursive, blocks: &[BlockData]) {
+    let mut layout = LinearLayout::horizontal();
+
+    for block in blocks {
+        layout.add_child(create_block_view(block.clone()));
+    }
+
+    siv.add_layer(Dialog::around(layout).title("Blocks in Mempool"));
+
+}
+
+pub fn start_block_refresh(siv: &mut Cursive, block_storage: &mut BlockStorage) {
+    let new_block_data = get_new_block_data();
+
+    for block in new_block_data {
+        block_storage.add_block(block);
+    }
+
+    render_blocks(siv, block_storage.get_blocks());
+}
+
+fn get_new_block_data() -> Vec<BlockData> {
+    let mut rng = rand::thread_rng();
+
+    // Simulação de 10 blocos com valores fictícios
+    (0..4)
+        .map(|i| BlockData {
+            height: 867290 + i as u64, // Incrementa a altura do bloco
+            sat_per_vbyte: rng.gen_range(1.0..10.0), // Taxa aleatória
+            transactions: rng.gen_range(1000..5000), // Número de transações
+            btc_amount: rng.gen_range(0.1..0.5), // Quantidade de BTC
+            time: format!("{} minutos atrás", rng.gen_range(1..60)), // Tempo simulado
+            pool: format!("Pool{}", i + 1), // Nome fictício do pool minerador
+        })
+        .collect()
+}
+
