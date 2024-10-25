@@ -1,6 +1,6 @@
 use cursive::views::{Dialog, LinearLayout, Panel, TextView};
 use cursive::Cursive;
-use crate::data::data::{BlockData, BlockStorage};
+//use crate::data::data::{BlockData, BlockStorage};
 use rand::Rng;
 
 pub fn create_block_view(block: BlockData) -> Panel<TextView> {
