@@ -3,7 +3,7 @@ use cursive::Cursive;
 use rand::Rng;
 // src/ui/blocks.rs
 use crate::BlockStorage;
-use crate::data::data::BlockData;
+use crate::data::BlockData;
 
 pub fn create_block_view(block: BlockData) -> Panel<TextView> {
     let block_info = format!(

@@ -1,5 +1,6 @@
 use cursive::{menu, Cursive, views::{Dialog, EditView}, event::Key};
-use crate::{app_core::local_process_command, ui::{show_onchain_data, show_mempool_data}};
+use crate::{app_core::local_process_command, onchain::show_onchain_data, mempool::show_mempool_data};
+use futures::executor::block_on; // Import for blocking async functions
 
 pub fn setup_menubar(siv: &mut Cursive) {
     siv.menubar()
@@ -7,14 +8,16 @@ pub fn setup_menubar(siv: &mut Cursive) {
             "Onchain",
             menu::Tree::new()
                 .leaf("View Onchain Data", |s| {
-                    show_onchain_data(s); // Displays the on-chain data
+                    // Block on the async function instead of spawning
+                    block_on(show_onchain_data(s));
                 }),
         )
         .add_subtree(
             "Mempool",
             menu::Tree::new()
                 .leaf("View Mempool Data", |s| {
-                    show_mempool_data(s); // Displays the mempool data
+                    // Block on the async function instead of spawning
+                    block_on(show_mempool_data(s));
                 }),
         )
         .add_subtree(

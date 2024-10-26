@@ -1,8 +1,10 @@
 use std::error::Error;
 use reqwest::Client;
 use serde::Deserialize;
+use cursive::Cursive;
+use cursive::views::Dialog;
 
-/// API endpoint for retrieving mempool data
+/// API endpoints
 const MEMPOOL_API_URL: &str = "https://mempool.space/api/mempool";
 const FEE_ESTIMATES_URL: &str = "https://mempool.space/api/v1/fees/recommended";
 
@@ -50,34 +52,18 @@ pub async fn fetch_mempool_data() -> Result<MempoolData, Box<dyn Error>> {
     Ok(response)
 }
 
-/// Displays basic mempool information
-pub async fn display_mempool_info() -> Result<(), Box<dyn Error>> {
+/// Function to display mempool information within the Cursive TUI
+pub async fn show_mempool_data(siv: &mut Cursive) {
     match fetch_mempool_data().await {
         Ok(data) => {
-            println!("Total transactions in mempool: {}", data.count);
-            println!("Total mempool size (vsize): {} vBytes", data.vsize);
+            siv.add_layer(Dialog::info(format!(
+                "Total transactions in mempool: {}\nTotal mempool size (vsize): {} vBytes",
+                data.count, data.vsize
+            )));
         }
-        Err(e) => {
-            eprintln!("Failed to fetch mempool data: {}", e);
-        }
-    }
-    Ok(())
-}
-
-/// Displays recommended transaction fees
-pub async fn display_fee_estimates() -> Result<(), Box<dyn Error>> {
-    match FeeEstimates::fetch_fees().await {
-        Ok(fees) => {
-            println!("Recommended Fees:");
-            println!(" - Fastest confirmation: {:.2} sat/vB", fees.fastest_fee);
-            println!(" - Half-hour confirmation: {:.2} sat/vB", fees.half_hour_fee);
-            println!(" - Hour confirmation: {:.2} sat/vB", fees.hour_fee);
-            println!(" - Minimum fee: {:.2} sat/vB", fees.minimum_fee);
-        }
-        Err(e) => {
-            eprintln!("Failed to fetch fee estimates: {}", e);
+        Err(_) => {
+            siv.add_layer(Dialog::info("Failed to fetch mempool data."));
         }
     }
-    Ok(())
 }
 

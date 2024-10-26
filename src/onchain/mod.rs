@@ -1,6 +1,8 @@
 use std::error::Error;
 use reqwest::Client;
 use serde::Deserialize;
+use cursive::Cursive;
+use cursive::views::Dialog;
 
 /// API endpoint for retrieving blockchain data
 const BLOCKCHAIN_INFO_URL: &str = "https://mempool.space/api/blockchain";
@@ -30,20 +32,18 @@ impl BlockchainInfo {
     }
 }
 
-/// Function to display basic blockchain information
-pub async fn display_blockchain_info() -> Result<(), Box<dyn Error>> {
+/// Function to display blockchain information within the Cursive TUI
+pub async fn show_onchain_data(siv: &mut Cursive) {
     match BlockchainInfo::fetch_info().await {
         Ok(info) => {
-            println!("Current Block Height: {}", info.block_height);
-            println!("Current Difficulty: {}", info.difficulty);
-            println!("Median Time: {}", info.median_time);
-            println!("Hash Rate: {}", info.hash_rate);
-            println!("Blockchain: {}", info.chain);
+            siv.add_layer(Dialog::info(format!(
+                "Current Block Height: {}\nCurrent Difficulty: {:.2}\nMedian Time: {}\nHash Rate: {:.2} TH/s\nBlockchain: {}",
+                info.block_height, info.difficulty, info.median_time, info.hash_rate, info.chain
+            )));
         }
-        Err(e) => {
-            eprintln!("Failed to fetch blockchain info: {}", e);
+        Err(_) => {
+            siv.add_layer(Dialog::info("Failed to fetch on-chain data."));
         }
     }
-    Ok(())
 }
 

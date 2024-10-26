@@ -2,13 +2,14 @@ mod cli;
 mod ui;
 mod data;
 mod app_core;
-
+pub mod onchain;
+pub mod mempool;
 use std::error::Error;
 use cursive::{Cursive, CursiveExt};
 use ui::{blocks, exit, menubar::setup_menubar};
 
 // src/main.rs
-use crate::data::data::BlockStorage;
+use crate::data::BlockStorage;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
