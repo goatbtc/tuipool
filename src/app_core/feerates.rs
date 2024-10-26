@@ -1,17 +1,35 @@
-pub fn get_recent_feerates() -> String {
-    // Simulated fee rate values; in a real scenario, you'd fetch this data from an API
-    let fast = 15.0;
-    let medium = 10.0;
-    let slow = 5.0;
-    let expulsion_threshold = 2.0;
+use reqwest::Error;
+use serde_json::Value;
 
-    format!(
-        "Fetching recent fee rates...\n\
-        - Fast Confirmation: {:.2} sat/vB\n\
-        - Medium Confirmation: {:.2} sat/vB\n\
-        - Slow Confirmation: {:.2} sat/vB\n\
-        - Expulsion Threshold: {:.2} sat/vB",
+pub async fn get_recent_feerates() -> Result<String, Error> {
+    let api_url = "https://mempool.space/api/v1/fees/recommended";
+    let response = reqwest::get(api_url).await?.json::<Value>().await?;
+    
+    let fast = response["fastestFee"].as_f64().unwrap_or(15.0);
+    let medium = response["halfHourFee"].as_f64().unwrap_or(10.0);
+    let slow = response["hourFee"].as_f64().unwrap_or(5.0);
+    let expulsion_threshold = response["minimumFee"].as_f64().unwrap_or(2.0);
+
+    Ok(format!(
+        "Feerates:\n\
+        - Fast confirmation: {:.2} sat/vB\n\
+        - Medium confirmation: {:.2} sat/vB\n\
+        - Slow confirmation: {:.2} sat/vB\n\
+        - Expulsion threshold: {:.2} sat/vB",
         fast, medium, slow, expulsion_threshold
-    )
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_get_recent_feerates() {
+        match get_recent_feerates().await {
+            Ok(result) => println!("{}", result),
+            Err(e) => eprintln!("Error: {}", e),
+        }
+    }
 }
 

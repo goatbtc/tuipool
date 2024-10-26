@@ -1,15 +1,14 @@
-pub fn check_transaction(txid: &str) -> String {
-    // Conectar com API para verificar se o txid está no mempool
-    // Simulação para agora
-    let found = true; // Aqui faremos uma verificação real
-    if found {
-        format!("Transaction {} found in the mempool.", txid)
-    } else {
-        format!("Transaction {} not found.", txid)
-    }
-}
+use reqwest::Error;
 
-pub fn check_txid_in_mempool(txid: &str) -> String {
-    format!("Checking if transaction {} is in the mempool...", txid)
+pub async fn check_transaction(txid: &str) -> Result<String, Error> {
+    let api_url = format!("https://mempool.space/api/tx/{}/status", txid);
+
+    let response = reqwest::get(&api_url).await?.json::<serde_json::Value>().await?;
+
+    if response["confirmed"].as_bool().unwrap_or(false) {
+        Ok(format!("Transaction {} has already been confirmed.", txid))
+    } else {
+        Ok(format!("Transaction {} is in the mempool and waiting for confirmation.", txid))
+    }
 }
 

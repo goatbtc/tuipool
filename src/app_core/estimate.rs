@@ -1,7 +1,10 @@
-pub fn estimate_confirmation_time(txid: &str) -> String {
-    // Utilizar um modelo de ML para estimar o tempo de confirmação
-    // Por enquanto, simulação de tempo
-    let estimated_time = 15; // Exemplo de retorno do modelo
-    format!("Estimated confirmation time for {}: {} minutes.", txid, estimated_time)
+pub fn estimate_confirmation_time(fee_rate: f64) -> String {
+    if fee_rate >= 15.0 {
+        "Estimated confirmation in 1-2 blocks.".to_string()
+    } else if fee_rate >= 10.0 {
+        "Estimated confirmation in 3-6 blocks.".to_string()
+    } else {
+        "Estimated confirmation in over 6 blocks.".to_string()
+    }
 }
 

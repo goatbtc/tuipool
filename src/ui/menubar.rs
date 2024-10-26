@@ -1,15 +1,5 @@
 use cursive::{menu, Cursive, views::{Dialog, EditView}, event::{Key}};
-
-
-// Função para processar comandos diretamente
-fn local_process_command(_s: &mut Cursive, input: &str) -> String {
-    match input {
-        "show fees" => "Displaying fee rates...".to_string(),
-        "check txid" => "Checking if TXID is in mempool...".to_string(),
-        "estimate time" => "Estimating confirmation time...".to_string(),
-        _ => "Command not recognized.".to_string(),
-    }
-}
+use crate::app_core::local_process_command;
 
 pub fn setup_menubar(siv: &mut Cursive) {
     siv.menubar()
