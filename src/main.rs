@@ -1,10 +1,12 @@
 mod cli;
 mod ui;
 mod data;
+mod app_core;
 
 use std::error::Error;
 use cursive::{Cursive, CursiveExt};
-use ui::{blocks,exit,fees,menubar::{self, setup_menubar}};
+use ui::{blocks, exit, menubar::setup_menubar};
+
 // src/main.rs
 use crate::data::BlockStorage;
 

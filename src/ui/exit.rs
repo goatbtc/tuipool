@@ -12,3 +12,4 @@ pub fn show_exit_dialog(siv: &mut Cursive) {
 
     siv.add_layer(exit_dialog);
 }
+
