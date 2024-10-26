@@ -47,7 +47,7 @@ fn get_new_block_data() -> Vec<BlockData> {
             transactions: rng.gen_range(1000..5000), // Número de transações
             btc_amount: rng.gen_range(0.1..0.5), // Quantidade de BTC
             time: format!("{} minutes ago", rng.gen_range(1..60)), // Tempo simulado
-            pool: format!("Pool{}", i + 1), // Nome fictício do pool minerador
+            pool: format!("Cluster{}", i + 1), // Nome fictício do pool minerador
         })
         .collect()
 }
