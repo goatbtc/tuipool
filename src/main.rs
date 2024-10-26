@@ -4,8 +4,9 @@ mod data;
 
 use std::error::Error;
 use cursive::{Cursive, CursiveExt};
-use data::data::BlockStorage;
 use ui::{blocks,exit,fees,menubar::{self, setup_menubar}};
+// src/main.rs
+use crate::data::BlockStorage;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
