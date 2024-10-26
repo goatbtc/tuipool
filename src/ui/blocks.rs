@@ -2,7 +2,8 @@ use cursive::views::{Dialog, LinearLayout, Panel, TextView};
 use cursive::Cursive;
 use rand::Rng;
 // src/ui/blocks.rs
-use crate::data::{BlockData, BlockStorage};
+use crate::BlockStorage;
+use crate::data::data::BlockData;
 
 pub fn create_block_view(block: BlockData) -> Panel<TextView> {
     let block_info = format!(
@@ -21,7 +22,7 @@ fn render_blocks(siv: &mut Cursive, blocks: &[BlockData]) {
         layout.add_child(create_block_view(block.clone()));
     }
 
-    siv.add_layer(Dialog::around(layout).title("Mempool"));
+    siv.add_layer(Dialog::around(layout).title("Onchain"));
 
 }
 

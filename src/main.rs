@@ -8,7 +8,7 @@ use cursive::{Cursive, CursiveExt};
 use ui::{blocks, exit, menubar::setup_menubar};
 
 // src/main.rs
-use crate::data::BlockStorage;
+use crate::data::data::BlockStorage;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
