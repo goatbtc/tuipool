@@ -24,7 +24,7 @@ pub struct ApiBlockData {
 }
 
 /// Fetches the latest block data from an external API with enhanced error handling.
-async fn fetch_latest_blocks() -> Result<Vec<ApiBlockData>> {
+pub async fn fetch_latest_blocks() -> Result<Vec<ApiBlockData>> {
     let client = Client::builder()
         .danger_accept_invalid_certs(true) // Temporarily bypass SSL certs for testing
         .build()?;
