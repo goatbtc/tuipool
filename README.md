@@ -37,6 +37,18 @@ Interactive TUI: Use a terminal user interface (TUI) for a user-friendly experie
 
 This tool helps Bitcoin users, developers, and miners optimize transaction handling and gain valuable insights into network congestion and fee dynamics.
 
+## How to use ## 
+
+Install Rust
+and then
+
+```
+git clone https://github.com/goatbtc/tuipool.git
+
+cargo clean && cargo build --release && cargo run --release
+
+```
+
 ## Call to contributors
 
 Passionate about open-source and Bitcoin? Join us in building a secure, community-driven project licensed under MIT. We welcome contributions from developers, testers, and enthusiasts to make this project a valuable resource for the Bitcoin community. Check out our contribution guide [here](CONTRIBUTING.md) to get started!
