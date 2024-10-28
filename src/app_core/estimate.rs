@@ -18,4 +18,3 @@ pub fn estimate_confirmation_time(fee_rate: f64, tx_size: Option<u64>) -> String
         format!("{}.", confirmation)
     }
 }
-

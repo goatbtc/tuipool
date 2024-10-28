@@ -1,9 +1,9 @@
-use std::error::Error;
-use cursive::Cursive;
 use cursive::traits::{Nameable, Resizable}; // Keep this import and remove the duplicate
 use cursive::views::{Dialog, EditView, LinearLayout, TextView};
+use cursive::Cursive;
 use reqwest;
 use serde::Deserialize;
+use std::error::Error;
 use tokio::runtime::Runtime;
 
 const MEMPOOL_URL: &str = "https://mempool.space/api/mempool";
@@ -113,4 +113,3 @@ fn check_txid_in_mempool(cb_sink: cursive::CbSink, txid: String) {
         }));
     });
 }
-

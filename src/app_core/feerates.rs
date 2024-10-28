@@ -1,13 +1,13 @@
+use cursive::views::Dialog;
+use cursive::Cursive;
 use reqwest::Error;
 use serde_json::Value;
-use cursive::Cursive;
-use cursive::views::Dialog;
 
 /// Fetches recent fee rates from the mempool API
 pub async fn get_recent_feerates() -> Result<String, Error> {
     let api_url = "https://mempool.space/api/v1/fees/recommended";
     let response = reqwest::get(api_url).await?.json::<Value>().await?;
-    
+
     let fast = response["fastestFee"].as_f64().unwrap_or(15.0);
     let medium = response["halfHourFee"].as_f64().unwrap_or(10.0);
     let slow = response["hourFee"].as_f64().unwrap_or(5.0);
@@ -54,4 +54,3 @@ mod tests {
         }
     }
 }
-

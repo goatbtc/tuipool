@@ -1,6 +1,6 @@
-pub mod mempool;
 pub mod estimate;
 pub mod feerates;
+pub mod mempool;
 
 use cursive::Cursive;
 use tokio::runtime::Runtime;
@@ -19,12 +19,14 @@ pub fn local_process_command(_siv: &mut Cursive, command: &str) -> String {
     match args[0] {
         "feerates" => {
             // Call the feerates function and get the output
-            rt.block_on(feerates::get_recent_feerates()).unwrap_or_else(|_| "Failed to fetch fees.".to_string())
+            rt.block_on(feerates::get_recent_feerates())
+                .unwrap_or_else(|_| "Failed to fetch fees.".to_string())
         }
         "check" => {
             if args.len() > 1 {
                 // Check the transaction ID status
-                rt.block_on(mempool::check_transaction(args[1])).unwrap_or_else(|_| "Failed to check transaction.".to_string())
+                rt.block_on(mempool::check_transaction(args[1]))
+                    .unwrap_or_else(|_| "Failed to check transaction.".to_string())
             } else {
                 "Error: No txid provided. Usage: check <txid>".to_string()
             }
@@ -56,4 +58,3 @@ pub fn get_help_message() -> String {
     - eta <fee_rate> [tx_size]: Estimate confirmation time and optionally calculate estimated cost if tx_size is provided\n\
     - help: Show this list of commands".to_string()
 }
-
