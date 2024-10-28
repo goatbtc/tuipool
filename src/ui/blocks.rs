@@ -1,51 +1,100 @@
+use crate::api::client::fetch_latest_blocks;
+use crate::data::data::{BlockData, BlockStorage};
 use cursive::views::{Dialog, LinearLayout, Panel, TextView};
 use cursive::Cursive;
-use crate::data::data::{BlockData, BlockStorage};
-use rand::Rng;
+use std::time::{SystemTime, UNIX_EPOCH};
 
+
+/// Creates a view for an individual block, formatted with its details
 pub fn create_block_view(block: BlockData) -> Panel<TextView> {
     let block_info = format!(
-        "Height: {}\n~{} sat/vB\n{} transações\n{} BTC\n{}",
-        block.height, block.sat_per_vbyte, block.transactions, block.btc_amount, block.time
+        "Height: {}\n{} sat/vB\n{} transactions\n{} BTC\n{}",
+        block.height,
+        if block.sat_per_vbyte.is_nan() {
+            "N/A".to_string()
+        } else {
+            format!("{:.2}", block.sat_per_vbyte)
+        },
+        block.transactions,
+        if block.btc_amount.is_nan() {
+            "N/A".to_string()
+        } else {
+            format!("{:.8}", block.btc_amount)
+        },
+        block.time
     );
-
-    Panel::new(TextView::new(block_info)).title(block.pool)
+    Panel::new(TextView::new(block_info)).title(format!("Block {}", block.height))
 }
 
-fn render_blocks(siv: &mut Cursive, blocks: &[BlockData]) {
+/// Renders a list of blocks horizontally within a dialog
+pub fn render_blocks(siv: &mut Cursive, blocks: Vec<BlockData>) {
     let mut layout = LinearLayout::horizontal();
 
     for block in blocks {
-        layout.add_child(create_block_view(block.clone()));
+        layout.add_child(create_block_view(block));
     }
 
-    siv.add_layer(Dialog::around(layout).title("Blocks in Mempool"));
-
+    siv.add_layer(Dialog::around(layout).title("Onchain"));
 }
 
-pub fn start_block_refresh(siv: &mut Cursive, block_storage: &mut BlockStorage) {
-    let new_block_data = get_new_block_data();
+pub fn blocks_view(siv: &mut Cursive) {
+    // Fetch the latest blocks asynchronously and update the UI
+    let cb_sink = siv.cb_sink().clone();
+    tokio::spawn({
+        let cb_sink = cb_sink.clone();
+        async move {
+            match fetch_latest_blocks().await {
+                Ok(api_blocks) => {
+                    let blocks: Vec<BlockData> = api_blocks
+                        .into_iter()
+                        .take(6)
+                        .map(|api_block| {
+                            let sat_per_vbyte = match (api_block.fee, api_block.size) {
+                                (Some(fee), size) if size > 0 => fee / size as f64,
+                                _ => 0.0,
+                            };
 
-    for block in new_block_data {
-        block_storage.add_block(block);
-    }
+                            let btc_amount = match api_block.fee {
+                                Some(fee) => fee / 100_000_000.0,
+                                None => 0.0,
+                            };
 
-    render_blocks(siv, block_storage.get_blocks());
+                            let time_diff_in_seconds = get_time_difference_in_seconds(api_block.timestamp);
+
+
+                            BlockData {
+                                height: api_block.height,
+                                sat_per_vbyte,
+                                transactions: api_block.tx_count,
+                                btc_amount,
+                                time: format_time_ago(time_diff_in_seconds),
+                                pool: api_block.pool_name.unwrap_or("Unknown".to_string()),
+                            }
+                        })
+                        .collect();
+                    let _ = cb_sink.send(Box::new(move |s| {
+                        render_blocks(s, blocks);
+                    }));
+                }
+                Err(_) => {
+                    let _ = cb_sink.send(Box::new(move |s| {
+                        s.add_layer(Dialog::info("Failed to fetch block data."));
+                    }));
+                }
+            }
+        }
+    });
 }
 
-fn get_new_block_data() -> Vec<BlockData> {
-    let mut rng = rand::thread_rng();
-
-    // Simulação de 10 blocos com valores fictícios
-    (0..4)
-        .map(|i| BlockData {
-            height: 867290 + i as u64, // Incrementa a altura do bloco
-            sat_per_vbyte: rng.gen_range(1.0..10.0), // Taxa aleatória
-            transactions: rng.gen_range(1000..5000), // Número de transações
-            btc_amount: rng.gen_range(0.1..0.5), // Quantidade de BTC
-            time: format!("{} minutos atrás", rng.gen_range(1..60)), // Tempo simulado
-            pool: format!("Pool{}", i + 1), // Nome fictício do pool minerador
-        })
-        .collect()
+fn format_time_ago(seconds_ago: u64) -> String {
+    let minutes_ago = seconds_ago / 60;
+    format!("{} minutes ago", minutes_ago)
 }
 
+fn get_time_difference_in_seconds(block_timestamp: u64) -> u64 {
+    let current_timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_secs();
+    current_timestamp.saturating_sub(block_timestamp)
+}

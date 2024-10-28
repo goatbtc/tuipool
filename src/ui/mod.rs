@@ -1,5 +1,4 @@
 pub mod blocks;
-pub mod fees;
 pub mod exit;
+pub mod help;
 pub mod menubar;
-
