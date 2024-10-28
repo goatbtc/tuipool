@@ -15,9 +15,9 @@ We're implementing some AI features too.
 
 - [x] Make you happy
 - Blocks
-  - [ ] GET blocks info
+  - [X] GET blocks info
 - Fees
-  - [ ] GET 
+  - [X] GET 
   - [ ] AI
 - Transactions
   - [ ] GET 
@@ -55,4 +55,4 @@ Passionate about open-source and Bitcoin? Join us in building a secure, communit
 
 ## License
 
-Licensed under MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+Licensed under MIT license ([LICENSE-MIT](LICENSE) or <http://opensource.org/licenses/MIT>)
