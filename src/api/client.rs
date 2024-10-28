@@ -1,15 +1,18 @@
 use anyhow::{bail, Result};
-use cursive::views::Dialog;
 use cursive::Cursive;
 use reqwest::Client;
 use serde::Deserialize;
 use tokio::task;
 use std::error::Error;
-use std::sync::{Arc, Mutex};
+use cursive::traits::{Nameable, Resizable};
+use cursive::views::{Dialog, EditView, LinearLayout, TextView};
+use reqwest;
 
 const BLOCKS_API_URL: &str = "https://mempool.space/api/blocks";
 const MEMPOOL_API_URL: &str = "https://mempool.space/api/mempool";
 const FEE_ESTIMATES_URL: &str = "https://mempool.space/api/v1/fees/recommended";
+const MEMPOOL_URL: &str = "https://mempool.space/api/mempool";
+const BLOCKSTREAM_FEE_URL: &str = "https://blockstream.info/api/fee-estimates";
 
 // Define a struct to hold detailed block information from the API
 #[derive(Deserialize, Debug)]
@@ -39,6 +42,16 @@ pub struct FeeEstimates {
     pub minimum_fee: f64,
 }
 
+
+#[derive(Deserialize, Debug)]
+struct FeeEstimatesBS {
+    #[serde(rename = "1")]
+    fastest_fee: f64,
+    #[serde(rename = "3")]
+    three_blocks_fee: f64,
+    #[serde(rename = "6")]
+    six_blocks_fee: f64,
+}
 
 /// Fetches the latest block data from an external API with enhanced error handling.
 pub async fn fetch_latest_blocks() -> Result<Vec<ApiBlockData>> {
@@ -108,5 +121,99 @@ pub fn show_mempool_data(siv: &mut Cursive) {
                 }));
             }
         }
+    });
+}
+
+
+
+
+
+pub fn setup_mempool_menu(siv: &mut Cursive) {
+    let cb_sink = siv.cb_sink().clone();
+
+    siv.add_layer(
+        Dialog::new()
+            .title("Fee rates Information")
+            .content(
+                LinearLayout::vertical()
+                    .child(TextView::new("Fetching recent fee rates...").with_name("fee_view"))
+                    .child(TextView::new("Enter a txid to check:"))
+                    .child(
+                        EditView::new()
+                            .on_submit({
+                                let cb_sink = cb_sink.clone();
+                                move |s, txid| {
+                                    let txid_clone = txid.to_string();
+                                    s.pop_layer();
+                                    check_txid_in_mempool(cb_sink.clone(), txid_clone);
+                                }
+                            })
+                            .with_name("txid_input")
+                            .fixed_width(40),
+                    ),
+            )
+            .button("Refresh Fees", {
+                let cb_sink = cb_sink.clone();
+                move |s| {
+                    s.call_on_name("fee_view", |view: &mut TextView| {
+                        view.set_content("Fetching latest fee rates...");
+                    });
+                    fetch_and_display_fees(cb_sink.clone());
+                }
+            })
+            .button("Close", |s| {
+                s.pop_layer();
+            }),
+    );
+
+    fetch_and_display_fees(cb_sink);
+}
+
+fn fetch_and_display_fees(cb_sink: cursive::CbSink) {
+    // Create an async block and spawn it on the Cursive event loop
+    tokio::spawn(async move {
+        match fetch_fee_rates().await {
+            Ok(fee_data) => {
+                let fee_info = format!(
+                    "Fastest (1 block): {:.2} sat/vB\n3 blocks: {:.2} sat/vB\n6 blocks: {:.2} sat/vB",
+                    fee_data.fastest_fee, fee_data.three_blocks_fee, fee_data.six_blocks_fee
+                );
+                let _ = cb_sink.send(Box::new(move |siv: &mut Cursive| {
+                    siv.call_on_name("fee_view", |view: &mut TextView| {
+                        view.set_content(fee_info);
+                    });
+                }));
+            }
+            Err(_) => {
+                let _ = cb_sink.send(Box::new(move |siv: &mut Cursive| {
+                    siv.call_on_name("fee_view", |view: &mut TextView| {
+                        view.set_content("Failed to fetch fee data.");
+                    });
+                }));
+            }
+        }
+    });
+}
+
+async fn fetch_fee_rates() -> Result<FeeEstimatesBS, Box<dyn Error>> {
+    let response = reqwest::get(BLOCKSTREAM_FEE_URL).await?;
+    let fee_data = response.json::<FeeEstimatesBS>().await?;
+    Ok(fee_data)
+}
+
+fn check_txid_in_mempool(cb_sink: cursive::CbSink, txid: String) {
+    // Spawn an async task for checking the txid in the mempool
+    let cb_sink_clone = cb_sink.clone();
+    tokio::spawn(async move {
+        let url = format!("https://mempool.space/api/tx/{}", txid);
+        let client = reqwest::Client::new();
+        let dialog_message = match client.get(&url).send().await {
+            Ok(resp) if resp.status().is_success() => "Transaction is in the mempool!".to_string(),
+            _ => "Transaction not found in the mempool.".to_string(),
+        };
+
+        let _ = cb_sink_clone.send(Box::new(move |siv: &mut Cursive| {
+            siv.add_layer(Dialog::info(dialog_message));
+        }));
     });
 }
