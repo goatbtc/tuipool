@@ -41,16 +41,3 @@ pub fn show_average_fees(siv: &mut Cursive) {
         }
     });
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_get_recent_feerates() {
-        match get_recent_feerates().await {
-            Ok(result) => println!("{}", result),
-            Err(e) => eprintln!("Error: {}", e),
-        }
-    }
-}

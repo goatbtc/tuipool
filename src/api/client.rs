@@ -1,12 +1,12 @@
 use anyhow::{bail, Result};
-use cursive::Cursive;
-use reqwest::Client;
-use serde::Deserialize;
-use tokio::task;
-use std::error::Error;
 use cursive::traits::{Nameable, Resizable};
 use cursive::views::{Dialog, EditView, LinearLayout, TextView};
+use cursive::Cursive;
 use reqwest;
+use reqwest::Client;
+use serde::Deserialize;
+use std::error::Error;
+use tokio::task;
 
 const BLOCKS_API_URL: &str = "https://mempool.space/api/blocks";
 const MEMPOOL_API_URL: &str = "https://mempool.space/api/mempool";
@@ -41,7 +41,6 @@ pub struct FeeEstimates {
     pub hour_fee: f64,
     pub minimum_fee: f64,
 }
-
 
 #[derive(Deserialize, Debug)]
 struct FeeEstimatesBS {
@@ -123,10 +122,6 @@ pub fn show_mempool_data(siv: &mut Cursive) {
         }
     });
 }
-
-
-
-
 
 pub fn setup_mempool_menu(siv: &mut Cursive) {
     let cb_sink = siv.cb_sink().clone();
