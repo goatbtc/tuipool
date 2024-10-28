@@ -1,5 +1,7 @@
 This project was created for the SatsHack by Vinteum 2024. The team members are Jose Carlos Cirqueira Junior (Team lead & Developer) e Luciana Ferreira (Developer).
 
+![Captura de tela de 2024-10-28 20-26-09](https://github.com/user-attachments/assets/eec604ce-0c2b-4909-b2d1-625cc5ef22cf)
+
 The problem being solved is the lack of visibility into the real-time status of Bitcoin transactions waiting to be confirmed in the mempool. For users, developers, and services that rely on efficient Bitcoin transaction processing, understanding the state of pending transactions—such as their size, fees, and expected confirmation time—can be critical for optimizing their operations. However, accessing and interpreting mempool data in a user-friendly way is not straightforward.
 
 This project aims to solve that by providing a command-line interface 
